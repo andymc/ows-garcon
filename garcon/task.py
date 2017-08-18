@@ -17,6 +17,8 @@ Note:
     the way you want.
 """
 
+import copy
+
 
 def decorate(timeout=None, enable_contextify=True):
     """Generic task decorator for tasks.
@@ -136,7 +138,7 @@ def fill_function_call(fn, requirements, activity, context):
     kwargs = dict()
 
     for argument in function_arguments:
-        value = context.get(requirements.get(argument))
+        value = copy.deepcopy(context.get(requirements.get(argument)))
 
         if argument == 'context':
             raise Exception(
