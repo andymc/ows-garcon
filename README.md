@@ -29,6 +29,7 @@ requires activity_2 and activity_3 to be completed.
 
 ```python
 from __future__ import print_function
+import boto.swf.layer2 as swf
 
 from garcon import activity
 from garcon import runner
