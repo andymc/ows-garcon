@@ -276,7 +276,6 @@ class Activity(swf.ActivityWorker, log.GarconLogger):
         """
 
         self.pool_size = 0
-        self.version = data.get('version') or self.version
         self.name = self.name or data.get('name')
         self.domain = getattr(self, 'domain', '') or data.get('domain')
         self.requires = getattr(self, 'requires', []) or data.get('requires')
@@ -414,7 +413,7 @@ def worker_runner(worker):
         continue
 
 
-def create(domain, name, version='1.0'):
+def create(domain, name):
     """Helper method to create Activities.
 
     The helper method simplifies the creation of an activity by setting the
@@ -440,7 +439,6 @@ def create(domain, name, version='1.0'):
 
         activity.hydrate(dict(
             domain=domain,
-            version=version,
             name=activity_name,
             generators=options.get('generators', []),
             requires=options.get('requires', []),
