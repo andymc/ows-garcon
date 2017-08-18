@@ -106,4 +106,3 @@ Contributors
 * Adam Griffiths ([@adamlwgriffiths](github.com/adamlwgriffiths))
 * Raphael Antonmattei ([@rantonmattei](github.com/rantonmattei))
 * John Penner ([@someboredkiddo](github.com/someboredkiddo))
-* Glenn Yonemitsu ([@glennyonemitsu](github.com/glennyonemitsu))
