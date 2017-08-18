@@ -92,17 +92,10 @@ def test_calculate_timeout():
     current_runner = runner.BaseRunner(task_a)
     assert current_runner.timeout == str(timeout)
 
-    @task.decorate(timeout=timeout)
     def task_b():
         pass
 
-    current_runner = runner.BaseRunner(task_b)
-    assert current_runner.timeout == str(timeout)
-
-    def task_c():
-        pass
-
-    current_runner = runner.BaseRunner(task_a, task_c)
+    current_runner = runner.BaseRunner(task_a, task_b)
     assert current_runner.timeout == str(timeout + runner.DEFAULT_TASK_TIMEOUT)
 
 
@@ -114,21 +107,9 @@ def test_runner_requirements():
     def task_a():
         pass
 
-
-    @task.decorate(timeout=20)
-    def task_b():
-        pass
-
-
-    value_1 = 'context.value'
-    value_2 = 'context.value_1'
-    current_runner = runner.BaseRunner(
-        task_a.fill(foo=value_1),
-        task_b.fill(foobar=value_2))
-
-    assert len(current_runner.requirements) == 2
-    assert value_1 in current_runner.requirements
-    assert value_2 in current_runner.requirements
+    value = 'context.value'
+    current_runner = runner.BaseRunner(task_a.fill(foo=value))
+    assert value in current_runner.requirements
 
 
 def test_runner_requirements_without_decoration():
