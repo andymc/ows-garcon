@@ -9,8 +9,10 @@ executed and when based on the flow procided.
 
 from boto.swf.exceptions import SWFDomainAlreadyExistsError
 from boto.swf.exceptions import SWFTypeAlreadyExistsError
+from threading import Thread
 import boto.swf.layer2 as swf
 import json
+import time
 
 from garcon import activity
 from garcon import event
@@ -115,13 +117,13 @@ class DeciderWorker(swf.Decider):
                 version=self.version,
                 task_list=self.task_list))
 
-        for current_activity in self.activities:
+        for activity in self.activities:
             registerables.append(
                 swf.ActivityType(
                     domain=self.domain,
-                    name=current_activity.name,
+                    name=activity.name,
                     version=self.version,
-                    task_list=current_activity.task_list))
+                    task_list=activity.task_list))
 
         for swf_entity in registerables:
             try:
@@ -168,12 +170,15 @@ class DeciderWorker(swf.Decider):
             for current in activity.find_available_activities(
                     self.flow, activity_states, context):
 
+                local_activity_context = dict(
+                    context.items() | current.context.items())
+
                 decisions.schedule_activity_task(
                     current.id,  # activity id.
                     current.activity_name,
                     self.version,
                     task_list=current.activity_worker.task_list,
-                    input=json.dumps(current.create_execution_input(context)),
+                    input=json.dumps(local_activity_context),
                     start_to_close_timeout=current.activity_worker.timeout)
             else:
                 activities = list(

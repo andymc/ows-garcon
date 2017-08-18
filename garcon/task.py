@@ -112,10 +112,6 @@ def contextify(fn):
                 return response
 
             return namespace_result(response, namespace)
-
-        # Keep a record of the requirements value. This allows us to trim the
-        # size of the context sent to the activity as an input.
-        _decorate(wrapper, 'requirements', requirements.values())
         return wrapper
 
     fn.fill = fill
