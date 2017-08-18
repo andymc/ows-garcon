@@ -19,8 +19,6 @@ Note:
 
 import copy
 
-from garcon import param
-
 
 def decorate(timeout=None, heartbeat=None, enable_contextify=True):
     """Generic task decorator for tasks.
@@ -169,10 +167,6 @@ def contextify(fn):
 
     def fill(namespace=None, **requirements):
 
-        requirements = {
-            key: param.parametrize(current_param)
-            for key, current_param in requirements.items()}
-
         def wrapper(context, **kwargs):
             kwargs.update(
                 fill_function_call(
@@ -187,10 +181,7 @@ def contextify(fn):
         # Keep a record of the requirements value. This allows us to trim the
         # size of the context sent to the activity as an input.
         _link_decorator(fn, wrapper)
-        _decorate(
-            wrapper,
-            'requirements',
-            param.get_all_requirements(requirements.values()))
+        _decorate(wrapper, 'requirements', requirements.values())
         return wrapper
 
     fn.fill = fill
@@ -237,8 +228,7 @@ def fill_function_call(fn, requirements, activity, context):
     kwargs = dict()
 
     for argument in function_arguments:
-        param = requirements.get(argument, None)
-        value = None
+        value = context.get(requirements.get(argument))
 
         if argument == 'context':
             raise Exception(
@@ -247,9 +237,6 @@ def fill_function_call(fn, requirements, activity, context):
 
         elif argument == 'activity':
             value = activity
-
-        elif param:
-            value = param.get_data(context)
 
         kwargs.update({
             argument: value
