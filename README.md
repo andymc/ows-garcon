@@ -46,21 +46,21 @@ test_activity_1 = create(
 test_activity_2 = create(
     name='activity_2',
     requires=[test_activity_1],
-    run=runner.Async(
+    tasks=runner.Async(
         lambda activity, context: print('activity_2_task_1'),
         lambda activity, context: print('activity_2_task_2')))
 
 test_activity_3 = create(
     name='activity_3',
     requires=[test_activity_1],
-    run=runner.Sync(
+    tasks=runner.Sync(
         lambda activity, context: print('activity_3')))
 
 test_activity_4 = create(
     name='activity_4',
     requires=[test_activity_3, test_activity_2],
-    run=runner.Sync(
-        lambda activity, context: print('activity_4')))
+    tasks=runner.Sync(
+    lambda activity, context: print('activity_4')))
 ```
 
 ### Application architecture

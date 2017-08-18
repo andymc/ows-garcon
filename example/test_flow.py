@@ -23,13 +23,13 @@ def activity_failure(activity, context):
 
 test_activity_1 = create(
     name='o',
-    run=runner.Sync(
+    tasks=runner.Sync(
         lambda activity, context: logger.debug('activity_1')))
 
 test_activity_2 = create(
     name='activity_2',
     requires=[test_activity_1],
-    run=runner.Async(
+    tasks=runner.Async(
         lambda activity, context: logger.debug('activity_2_task_1'),
         lambda activity, context: logger.debug('activity_2_task_2')))
 
@@ -37,10 +37,10 @@ test_activity_3 = create(
     name='activity_3',
     retry=10,
     requires=[test_activity_1],
-    run=runner.Sync(activity_failure))
+    tasks=runner.Sync(activity_failure))
 
 test_activity_4 = create(
     name='activity_4',
     requires=[test_activity_3, test_activity_2],
-    run=runner.Sync(
+    tasks=runner.Sync(
         lambda activity, context: logger.debug('activity_4')))
