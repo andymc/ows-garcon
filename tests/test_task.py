@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-import functools
 try:
     from unittest.mock import MagicMock
 except:
@@ -131,21 +130,6 @@ def test_task_decorator():
 
     call = test.fill(user='user')
     call(dict(user='something'))
-
-
-def test_task_decorator_attributes():
-    """Test that the decorated task has attributes similar to the original
-    function.
-    """
-
-    decorator = task.decorate()
-
-    def test():
-        pass
-
-    test_task = decorator(test)
-    for attr_name in functools.WRAPPER_ASSIGNMENTS:
-        assert getattr(test_task, attr_name) == getattr(test, attr_name)
 
 
 def test_task_decorator_with_heartbeat():
