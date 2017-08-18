@@ -11,9 +11,6 @@ from garcon import runner
 from garcon import task
 
 
-EMPTY_CONTEXT = dict()
-
-
 def test_execute_default_task_runner():
     """Should throw an exception.
     """
@@ -21,6 +18,7 @@ def test_execute_default_task_runner():
     current_runner = runner.BaseRunner()
     with pytest.raises(NotImplementedError):
         current_runner.execute(None, None)
+        assert False
 
 
 def test_synchronous_tasks(monkeypatch):
@@ -36,11 +34,11 @@ def test_synchronous_tasks(monkeypatch):
     current_activity = activity.Activity()
     current_activity.hydrate(dict(runner=current_runner))
 
-    result = current_runner.execute(current_activity, EMPTY_CONTEXT)
+    result = current_runner.execute(current_activity, dict())
 
     assert len(current_runner.tasks) == 2
 
-    for current_task in task.flatten(current_runner.tasks, EMPTY_CONTEXT):
+    for current_task in current_runner.tasks:
         assert current_task.called
 
     assert resp == result
@@ -83,7 +81,7 @@ def test_calculate_timeout_with_no_tasks():
     """
 
     task_list = runner.BaseRunner()
-    assert task_list.timeout(EMPTY_CONTEXT) == 0
+    assert task_list.timeout == 0
 
 
 def test_calculate_heartbeat_with_no_tasks():
@@ -91,7 +89,7 @@ def test_calculate_heartbeat_with_no_tasks():
     """
 
     task_list = runner.BaseRunner()
-    assert task_list.heartbeat(EMPTY_CONTEXT) == 0
+    assert task_list.heartbeat == 0
 
 
 def test_calculate_default_timeout():
@@ -99,7 +97,7 @@ def test_calculate_default_timeout():
     """
 
     task_list = runner.BaseRunner(lambda x: x)
-    assert task_list.timeout(EMPTY_CONTEXT) == runner.DEFAULT_TASK_TIMEOUT
+    assert task_list.timeout == runner.DEFAULT_TASK_TIMEOUT
 
 
 def test_calculate_default_heartbeat():
@@ -107,7 +105,7 @@ def test_calculate_default_heartbeat():
     """
 
     task_list = runner.BaseRunner(lambda x: x)
-    assert task_list.heartbeat(EMPTY_CONTEXT) == runner.DEFAULT_TASK_HEARTBEAT
+    assert task_list.heartbeat == runner.DEFAULT_TASK_HEARTBEAT
 
 
 def test_calculate_timeout():
@@ -121,22 +119,20 @@ def test_calculate_timeout():
         pass
 
     current_runner = runner.BaseRunner(task_a)
-    assert current_runner.timeout(EMPTY_CONTEXT) == timeout
+    assert current_runner.timeout == timeout
 
     @task.decorate(timeout=timeout)
     def task_b():
         pass
 
     current_runner = runner.BaseRunner(task_b)
-    assert current_runner.timeout(EMPTY_CONTEXT) == timeout
+    assert current_runner.timeout == timeout
 
     def task_c():
         pass
 
     current_runner = runner.BaseRunner(task_a, task_c)
-    assert (
-        current_runner.timeout(EMPTY_CONTEXT) ==
-            timeout + runner.DEFAULT_TASK_TIMEOUT)
+    assert current_runner.timeout == timeout + runner.DEFAULT_TASK_TIMEOUT
 
 
 def test_calculate_heartbeat():
@@ -148,14 +144,14 @@ def test_calculate_heartbeat():
         pass
 
     current_runner = runner.BaseRunner(task_a)
-    assert current_runner.heartbeat(EMPTY_CONTEXT) == 5
+    assert current_runner.heartbeat == 5
 
     @task.decorate(heartbeat=3)
     def task_b():
         pass
 
     current_runner = runner.BaseRunner(task_b)
-    assert current_runner.heartbeat(EMPTY_CONTEXT) == 3
+    assert current_runner.heartbeat == 3
 
     @task.decorate(heartbeat=4498)
     def task_c():
@@ -166,7 +162,7 @@ def test_calculate_heartbeat():
 
     current_runner = runner.BaseRunner(
         task_a, task_b, task_c, task_d)
-    assert current_runner.heartbeat(EMPTY_CONTEXT) == 4498
+    assert current_runner.heartbeat == 4498
 
 
 
@@ -190,10 +186,9 @@ def test_runner_requirements():
         task_a.fill(foo=value_1),
         task_b.fill(foobar=value_2))
 
-    requirements = current_runner.requirements(EMPTY_CONTEXT)
-    assert len(requirements) == 2
-    assert value_1 in requirements
-    assert value_2 in requirements
+    assert len(current_runner.requirements) == 2
+    assert value_1 in current_runner.requirements
+    assert value_2 in current_runner.requirements
 
 
 def test_runner_requirements_without_decoration():
@@ -206,4 +201,5 @@ def test_runner_requirements_without_decoration():
     current_runner = runner.BaseRunner(task_a)
 
     with pytest.raises(runner.NoRunnerRequirementsFound):
-        current_runner.requirements(EMPTY_CONTEXT)
+        current_runner.requirements
+        assert False
