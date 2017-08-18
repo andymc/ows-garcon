@@ -263,8 +263,6 @@ class Activity(swf.ActivityWorker, log.GarconLogger):
                 # the worker immediately.
                 try:
                     self.fail(reason=str(error))
-                    if self.on_exception:
-                        self.on_exception(self, error)
                 except:
                     pass
 
@@ -294,8 +292,6 @@ class Activity(swf.ActivityWorker, log.GarconLogger):
         self.requires = getattr(self, 'requires', []) or data.get('requires')
         self.retry = getattr(self, 'retry', None) or data.get('retry', 0)
         self.task_list = self.task_list or data.get('task_list')
-        self.on_exception = (
-            getattr(self, 'on_exception', None) or data.get('on_exception'))
 
         # The start timeout is how long it will take between the scheduling
         # of the activity and the start of the activity.
@@ -509,7 +505,7 @@ def worker_runner(worker):
         continue
 
 
-def create(domain, name, version='1.0', on_exception=None):
+def create(domain, name, version='1.0'):
     """Helper method to create Activities.
 
     The helper method simplifies the creation of an activity by setting the
@@ -519,15 +515,6 @@ def create(domain, name, version='1.0', on_exception=None):
     Note:
         The task list is generated based on the domain and the name of the
         activity. Always make sure your activity name is unique.
-
-    Args:
-        domain (str): the domain name.
-        name (str): name of the activity.
-        version (str): activity version.
-        on_exception (callable): the error handler.
-
-    Return:
-        callable: activity generator.
     """
 
     def wrapper(**options):
@@ -552,8 +539,7 @@ def create(domain, name, version='1.0', on_exception=None):
             task_list=activity_name,
             tasks=options.get('tasks'),
             run=options.get('run'),
-            schedule_to_start=options.get('schedule_to_start'),
-            on_exception=options.get('on_exception') or on_exception))
+            schedule_to_start=options.get('schedule_to_start')))
         return activity
     return wrapper
 

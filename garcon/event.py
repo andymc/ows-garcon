@@ -52,8 +52,7 @@ def activity_states_from_events(events):
 
             activity_events.setdefault(
                 activity_event.get('activity_name'), {}).setdefault(
-                    activity_id,
-                    activity.ActivityState(activity_id)).add_state(
+                    activity_id, activity.ActivityState(activity_id)).add_state(
                         activity.ACTIVITY_FAILED)
 
         elif event_type == 'ActivityTaskCompleted':
@@ -64,8 +63,7 @@ def activity_states_from_events(events):
 
             activity_events.setdefault(
                 activity_event.get('activity_name'), {}).setdefault(
-                    activity_id,
-                    activity.ActivityState(activity_id)).add_state(
+                    activity_id, activity.ActivityState(activity_id)).add_state(
                         activity.ACTIVITY_COMPLETED)
 
             result = json.loads(activity_info.get('result') or '{}')
