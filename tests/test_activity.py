@@ -561,13 +561,9 @@ def test_create_activity_instance_input(monkeypatch):
         execution_context=dict(somemore='values'))
     resp = instance.create_execution_input()
 
-    assert len(resp) == 4
+    assert len(resp) == 2
     assert resp.get('context') == 'yes'
-    assert 'somemore' not in resp
-    assert 'unused' not in resp
-    assert 'execution.domain' in resp
-    assert 'execution.run_id' in resp
-    assert 'execution.workflow_id' in resp
+    assert resp.get('somemore') == 'values'
 
 
 def test_create_activity_instance_input_without_decorate(monkeypatch):
