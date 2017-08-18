@@ -253,22 +253,7 @@ class Activity(swf.ActivityWorker, log.GarconLogger):
         previous activity is consumed (context).
         """
 
-        try:
-            activity_task = self.poll()
-        except Exception as error:
-            # Catch exceptions raised during poll() to avoid an Activity thread
-            # dying & worker daemon unable to process the affected Activity.
-            # AWS api limits on SWF calls are a common source of such
-            # exceptions (see https://github.com/xethorn/garcon/pull/75)
-
-            # on_exception() can be overriden by the flow to send an alert
-            # when an exception occurs.
-            if self.on_exception:
-                self.on_exception(self, error)
-
-            self.logger.error(error, exc_info=True)
-            return True
-
+        activity_task = self.poll()
         packed_context = activity_task.get('input')
         context = dict()
 
