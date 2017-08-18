@@ -28,9 +28,10 @@ class DeciderWorker(swf.Decider):
 
         self.flow = flow
         self.domain = flow.domain
+        self.task_list = flow.domain + '_decider'
         self.version = '1.0'
         self.activities = activity.find_workflow_activities(flow)
-        self.task_list = flow.name
+
         super(DeciderWorker, self).__init__()
 
         if register:
