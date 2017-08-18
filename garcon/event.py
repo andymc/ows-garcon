@@ -65,11 +65,9 @@ def activity_states_from_events(events):
                 activity_event.get('activity_name'), {}).setdefault(
                     activity_id, activity.ActivityState(activity_id)).add_state(
                         activity.ACTIVITY_COMPLETED)
-
-            result = json.loads(activity_info.get('result') or '{}')
             activity_events.get(
                 activity_event.get('activity_name')).get(
-                    activity_id).set_result(result)
+                    activity_id).set_result(activity_info.get('result'))
 
     return activity_events
 
