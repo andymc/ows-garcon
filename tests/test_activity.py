@@ -555,13 +555,12 @@ def test_create_activity_instance_input(monkeypatch):
     activity_mock.name = 'activity'
     activity_mock.runner = runner.BaseRunner(task_a.fill(value='context'))
     instance = activity.ActivityInstance(
-        activity_mock, local_context=dict(context='yes', unused='no'),
+        activity_mock, local_context=dict(context='yes'),
         execution_context=dict(somemore='values'))
     resp = instance.create_execution_input()
 
-    assert len(resp) == 2
+    assert len(resp) == 1
     assert resp.get('context') == 'yes'
-    assert resp.get('somemore') == 'values'
 
 
 def test_create_activity_instance_input_without_decorate(monkeypatch):
