@@ -81,15 +81,13 @@ def test_run_capture_exception(monkeypatch, poll):
     current_activity = activity_run(monkeypatch, poll=poll)
     current_activity.on_exception = MagicMock()
     current_activity.execute_activity = MagicMock()
-    error_msg_long = "Error" * 100
-    actual_error_msg = error_msg_long[:255]
-    current_activity.execute_activity.side_effect = Exception(error_msg_long)
+    current_activity.execute_activity.side_effect = Exception('Error')
     current_activity.run()
 
     assert current_activity.poll.called
     assert current_activity.execute_activity.called
     assert current_activity.on_exception.called
-    current_activity.fail.assert_called_with(reason=actual_error_msg)
+    assert current_activity.fail.called
     assert not current_activity.complete.called
 
 
