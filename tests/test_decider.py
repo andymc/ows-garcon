@@ -35,7 +35,6 @@ def test_create_decider(monkeypatch):
     dec = decider.DeciderWorker(example, register=False)
     assert not dec.register.called
 
-
 def test_get_workflow_execution_info(monkeypatch):
     """Check that the workflow execution info are properly extracted
     """
