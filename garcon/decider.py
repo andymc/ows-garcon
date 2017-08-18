@@ -32,7 +32,7 @@ class DeciderWorker(swf.Decider):
         self.domain = flow.domain
         self.task_list = flow.domain + '_decider'
         self.version = '1.0'
-        self.activities = activity.find_workflow_activities(flow)
+        self.activities = activity.find_activities(flow)
 
         super(DeciderWorker, self).__init__()
 
@@ -162,22 +162,18 @@ class DeciderWorker(swf.Decider):
 
         try:
             for current in activity.find_available_activities(
-                    self.flow, activity_states, context):
-
-                local_activity_context = dict(
-                    context.items() | current.context.items())
-
+                    self.flow, activity_states):
                 decisions.schedule_activity_task(
-                    current.id, # activity id.
-                    current.activity_name,
+                    '%s-%i' % (current.name, time.time()),
+                    current.name,
                     self.version,
-                    task_list=current.activity_worker.task_list,
-                    input=json.dumps(local_activity_context),
-                    start_to_close_timeout=current.activity_worker.timeout)
+                    task_list=current.task_list,
+                    input=json.dumps(context),
+                    start_to_close_timeout=current.timeout)
             else:
                 activities = list(
                     activity.find_uncomplete_activities(
-                        self.flow, activity_states, context))
+                        self.flow, activity_states))
                 if not activities:
                     decisions.complete_workflow_execution()
         except Exception as e:

@@ -104,10 +104,9 @@ def contextify(fn):
 
     def fill(namespace=None, **requirements):
 
-        def wrapper(context, **kwargs):
+        def wrapper(activity, context, **kwargs):
             kwargs.update(
-                fill_function_call(
-                    fn, requirements, kwargs.get('activity'), context))
+                fill_function_call(fn, requirements, activity, context))
 
             response = fn(**kwargs)
             if not response or not namespace:

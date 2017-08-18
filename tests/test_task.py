@@ -56,7 +56,7 @@ def test_task_decorator():
     assert callable(test.fill)
 
     call = test.fill(user='user')
-    call(dict(user='something'))
+    call(None, dict(user='something'))
 
 
 def test_task_decorator_with_activity():
@@ -71,7 +71,7 @@ def test_task_decorator_with_activity():
         assert activity is current_activity
 
     call = test.fill()
-    call(dict(), activity=current_activity)
+    call(current_activity, dict())
 
     assert current_activity.called
 
@@ -90,7 +90,7 @@ def test_task_decorator_with_context():
     call = test.fill()
 
     with pytest.raises(Exception):
-        call(current_context)
+        call(None, current_context)
 
     assert not spy.called
 
@@ -151,7 +151,7 @@ def test_contextify():
         key_to_replace='context.key',
         kwargs_to_replace='context.kwarg_key')
 
-    resp = fn({'context.key': value, 'context.kwarg_key': kwargs_value})
+    resp = fn(None, {'context.key': value, 'context.kwarg_key': kwargs_value})
 
     assert isinstance(resp, dict)
     assert resp.get('return_value') is return_value
@@ -168,7 +168,6 @@ def test_contextify_with_mapped_response():
         activity, key_to_replace, key_not_to_replace=None,
             kwargs_to_replace=None):
 
-        assert activity == 'activity'
         return dict(return_value=return_value)
 
     fn = method.fill(
@@ -176,9 +175,7 @@ def test_contextify_with_mapped_response():
         kwargs_to_replace='context.kwarg_key',
         namespace='somethingrandom')
 
-    resp = fn(
-        {'context.key': 'test', 'context.kwarg_key': 'a'},
-        activity='activity')
+    resp = fn(None, {'context.key': 'test', 'context.kwarg_key': 'a'})
 
     assert isinstance(resp, dict)
     assert len(resp) == 1
