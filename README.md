@@ -71,9 +71,8 @@ test_activity_4 = create(
 ├── flows # All your application flows.
 │   ├── __init__.py
 │   └── example.py # Should contain a structure similar to the code sample.
-├── tasks # All your tasks
-│   ├── __init__.py
-│   └── s3.py # Task that focuses on s3 files.
+└── tasks
+├── __init__.py
 └── task_example.py # Your different tasks.
 ```
 
