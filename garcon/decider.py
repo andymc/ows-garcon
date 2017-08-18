@@ -61,6 +61,29 @@ class DeciderWorker(swf.Decider):
         # Remove all the events that are related to decisions and only.
         return [e for e in events if not e['eventType'].startswith('Decision')]
 
+    def get_workflow_execution_info(self, poll):
+        """Get the workflow execution info from a given poll if it exists.
+
+        Args:
+            poll (object): The poll object (see AWS SWF for details.)
+        Return:
+            `dict`: Workflow execution info including domain, workflowId and
+                runId.
+        """
+
+        execution_info = None
+        if ('workflowExecution' in poll and 'workflowId' in
+                poll['workflowExecution'] and 'runId' in
+                poll['workflowExecution']):
+
+            workflow_execution = poll['workflowExecution']
+            execution_info = {
+                'execution.domain': self.domain,
+                'execution.workflow_id': workflow_execution['workflowId'],
+                'execution.run_id': workflow_execution['runId']
+            }
+
+        return execution_info
 
     def get_activity_states(self, history):
         """Get the activity states from the history.
@@ -123,14 +146,14 @@ class DeciderWorker(swf.Decider):
 
         try:
             for current in activity.find_available_activities(
-                    self.flow, activity_states, context.current):
+                    self.flow, activity_states, context):
 
                 schedule_activity_task(
                     decisions, current, version=self.version)
             else:
                 activities = list(
                     activity.find_uncomplete_activities(
-                        self.flow, activity_states, context.current))
+                        self.flow, activity_states, context))
                 if not activities:
                     decisions.complete_workflow_execution()
         except Exception as e:
@@ -155,17 +178,11 @@ class DeciderWorker(swf.Decider):
 
         schedule_context = ScheduleContext()
         decider_schedule = functools.partial(
-            schedule, decisions, schedule_context, history, context.current,
+            schedule, decisions, schedule_context, history, context,
             version=self.version)
 
         try:
-            kwargs = dict(schedule=decider_schedule)
-
-            # retro-compatibility.
-            if 'context' in decider.__code__.co_varnames:
-                kwargs.update(context=context.workflow_input)
-
-            decider(**kwargs)
+            decider(schedule=decider_schedule)
 
             # When no exceptions are raised and the method decider has returned
             # it means that there i nothing left to do in the current decider.
@@ -204,16 +221,19 @@ class DeciderWorker(swf.Decider):
 
         history = self.get_history(poll)
         activity_states = self.get_activity_states(history)
-        current_context = event.get_current_context(history)
-        current_context.set_workflow_execution_info(poll, self.domain)
+        workflow_execution_info = self.get_workflow_execution_info(poll)
+        context = event.get_current_context(history)
+
+        if workflow_execution_info is not None:
+            context.update(workflow_execution_info)
 
         decisions = swf.Layer1Decisions()
         if not custom_decider:
             self.create_decisions_from_flow(
-                decisions, activity_states, current_context)
+                decisions, activity_states, context)
         else:
             self.delegate_decisions(
-                decisions, custom_decider, activity_states, current_context)
+                decisions, custom_decider, activity_states, context)
         self.complete(decisions=decisions)
         return True
 
