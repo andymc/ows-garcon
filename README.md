@@ -105,4 +105,3 @@ Contributors
 * Michael Ortali ([@xethorn](github.com/xethorn))
 * Adam Griffiths ([@adamlwgriffiths](github.com/adamlwgriffiths))
 * Raphael Antonmattei ([@rantonmattei](github.com/rantonmattei))
-* John Penner ([@someboredkiddo](github.com/someboredkiddo))
