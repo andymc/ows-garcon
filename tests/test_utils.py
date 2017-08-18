@@ -19,7 +19,6 @@ def test_create_dictionary_key_with_empty_dict():
     with pytest.raises(ValueError):
         utils.create_dictionary_key(dict())
 
-
 def test_create_dictionary_key():
     """Try craeting a unique key from a dict.
     """

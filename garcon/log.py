@@ -6,7 +6,6 @@ import logging
 
 LOGGER_PREFIX = 'garcon'
 
-
 class GarconLogger:
     """This class is meant to be extended to get the Garcon logger feature
     The logger injects the execution context into the logger name.
@@ -42,6 +41,7 @@ class GarconLogger:
         return logging.getLogger(
             getattr(self, 'logger_name', None) or LOGGER_PREFIX)
 
+
     def set_log_context(self, execution_context):
         """Set a logger name with execution context passed in.
 
@@ -49,11 +49,12 @@ class GarconLogger:
             execution_context (dict): execution context information
         """
 
-        if ('execution.domain' in execution_context and
-                'execution.workflow_id' in execution_context and
-                'execution.run_id' in execution_context):
+        if 'execution.domain' in execution_context and \
+            'execution.workflow_id' in execution_context and \
+            'execution.run_id' in execution_context:
 
             self.logger_name = get_logger_namespace(execution_context)
+
 
     def unset_log_context(self):
         """Unset the logger name.
@@ -66,7 +67,7 @@ def get_logger_namespace(execution_context):
     """Return the logger namespace for a given execution context.
 
     Args:
-        execution_context (dict): execution context information
+    	execution_context (dict): execution context information
     """
 
     return '.'.join([
