@@ -11,7 +11,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='Garcon',
-    version='0.3.5',
+    version='0.3.4',
     url='https://github.com/xethorn/garcon/',
     author='Michael Ortali',
     author_email='hello@xethorn.net',
@@ -21,7 +21,7 @@ setup(
     license='MIT',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=['boto', 'backoff'],
+    install_requires=['boto'],
     zip_safe=False,
     classifiers=[
         'Programming Language :: Python :: 2.7',
