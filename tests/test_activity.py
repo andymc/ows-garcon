@@ -14,6 +14,8 @@ from garcon import task
 from garcon import utils
 from tests.fixtures import decider
 
+import boto.exception as boto_exception
+
 
 def activity_run(
         monkeypatch, poll=None, complete=None, fail=None, execute=None):
@@ -62,6 +64,72 @@ def poll():
     return dict(activityId='something')
 
 
+def test_poll_for_activity(monkeypatch, poll=poll):
+    """Test that poll_for_activity successfully polls.
+    """
+
+    current_activity = activity_run(monkeypatch, poll)
+    current_activity.poll.return_value = 'foo'
+
+    activity_results = current_activity.poll_for_activity()
+    assert current_activity.poll.called
+    assert activity_results == 'foo'
+
+
+def test_poll_for_activity_throttle_retry(monkeypatch, poll=poll):
+    """Test that SWF throttles are retried during polling.
+    """
+
+    current_activity = activity_run(monkeypatch, poll)
+
+    response_status = 400
+    response_reason = 'Bad Request'
+    reponse_body = (
+        '{"__type": "com.amazon.coral.availability#ThrottlingException",'
+        '"message": "Rate exceeded"}')
+    json_body = json.loads(reponse_body)
+    exception = boto_exception.SWFResponseError(
+        response_status, response_reason, body=json_body)
+    current_activity.poll.side_effect = exception
+
+    with pytest.raises(boto_exception.SWFResponseError):
+        current_activity.poll_for_activity()
+    assert current_activity.poll.call_count == 5
+
+
+def test_poll_for_activity_error(monkeypatch, poll=poll):
+    """Test that non-throttle errors during poll are thrown.
+    """
+
+    current_activity = activity_run(monkeypatch, poll)
+
+    exception = Exception()
+    current_activity.poll.side_effect = exception
+
+    with pytest.raises(Exception):
+        current_activity.poll_for_activity()
+
+
+def test_poll_for_activity_identity(monkeypatch, poll=poll):
+    """Test that identity is passed to poll_for_activity.
+    """
+
+    current_activity = activity_run(monkeypatch, poll)
+
+    current_activity.poll_for_activity(identity='foo')
+    current_activity.poll.assert_called_with(identity='foo')
+
+
+def test_poll_for_activity_no_identity(monkeypatch, poll=poll):
+    """Test poll_for_activity works without identity passed as param.
+    """
+
+    current_activity = activity_run(monkeypatch, poll)
+
+    current_activity.poll_for_activity()
+    current_activity.poll.assert_called_with(identity=None)
+
+
 def test_run_activity(monkeypatch, poll):
     """Run an activity.
     """
@@ -69,7 +137,19 @@ def test_run_activity(monkeypatch, poll):
     current_activity = activity_run(monkeypatch, poll=poll)
     current_activity.run()
 
-    assert current_activity.poll.called
+    current_activity.poll.assert_called_with(identity=None)
+    assert current_activity.execute_activity.called
+    assert current_activity.complete.called
+
+
+def test_run_activity_identity(monkeypatch, poll):
+    """Run an activity with identity as param.
+    """
+
+    current_activity = activity_run(monkeypatch, poll=poll)
+    current_activity.run(identity='foo')
+
+    current_activity.poll.assert_called_with(identity='foo')
     assert current_activity.execute_activity.called
     assert current_activity.complete.called
 
@@ -408,14 +488,17 @@ def test_worker_infinite_loop():
         def __init__(self):
             self.count = 0
 
-        def run(self):
+        def run(self, identity=None):
             spy()
             self.count = self.count + 1
             if self.count < 5:
                 return True
             return False
 
-    activity.worker_runner(Activity())
+    activity_worker = Activity()
+    activity_worker.name = 'activity_name'
+    activity_worker.logger = MagicMock()
+    activity.worker_runner(activity_worker)
     assert spy.called
     assert spy.call_count == 5
 
