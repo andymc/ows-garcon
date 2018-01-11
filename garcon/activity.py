@@ -38,8 +38,6 @@ Create an activity::
 """
 
 from threading import Thread
-import backoff
-import boto.exception as boto_exception
 import boto.swf.layer2 as swf
 import itertools
 import json
@@ -247,24 +245,6 @@ class Activity(swf.ActivityWorker, log.GarconLogger):
     version = '1.0'
     task_list = None
 
-    @backoff.on_exception(
-        backoff.expo,
-        boto_exception.SWFResponseError,
-        max_tries=5,
-        giveup=utils.non_throttle_error,
-        on_backoff=utils.throttle_backoff_handler,
-        jitter=backoff.full_jitter)
-    def poll_for_activity(self):
-        """Runs Activity Poll.
-
-        If a SWF throttling exception is raised during a poll, the poll will
-        be retried up to 5 times using exponential backoff algorithm.
-
-        Upgrading to boto3 would make this retry logic redundant.
-        """
-
-        return self.poll()
-
     def run(self):
         """Activity Runner.
 
@@ -274,7 +254,7 @@ class Activity(swf.ActivityWorker, log.GarconLogger):
         """
 
         try:
-            activity_task = self.poll_for_activity()
+            activity_task = self.poll()
         except Exception as error:
             # Catch exceptions raised during poll() to avoid an Activity thread
             # dying & worker daemon unable to process the affected Activity.
