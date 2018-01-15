@@ -448,10 +448,7 @@ def test_worker_run(monkeypatch):
 
     assert len(worker.activities) == 4
     for current_activity in worker.activities:
-        # this check was originally `assert current_activity.run.called`
-        # for some reason this fails on py2.7, so we explicitly check for
-        # `called == 1`.
-        assert current_activity.run.called == 1
+        current_activity.run.assert_any_call()
 
 
 def test_worker_run_with_skipped_activities(monkeypatch):

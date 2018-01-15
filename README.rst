@@ -82,6 +82,16 @@ Application architecture
     │   └── s3.py # Task that focuses on s3 files.
     └── task_example.py # Your different tasks.
 
+Running tests
+~~~~~~~~~~~~~
+
+Use tox to run tests on python versions 2.7, 3.4, 3.5, and 3.6 simultaneously:
+
+.. code:: bash
+
+    tox
+
+
 Contributors
 ~~~~~~~~~~~~
 
