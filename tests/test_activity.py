@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 try:
     from unittest.mock import MagicMock
-except:
+except:  # noqa: E722
     from mock import MagicMock
 import json
 import pytest

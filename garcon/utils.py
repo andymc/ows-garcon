@@ -30,6 +30,7 @@ def create_dictionary_key(dictionary):
 
     return hashlib.sha1(key_parts.encode('utf-8')).hexdigest()
 
+
 def non_throttle_error(swf_response_error):
     """Activity Runner.
 
@@ -42,6 +43,7 @@ def non_throttle_error(swf_response_error):
     """
 
     return swf_response_error.error_code != 'ThrottlingException'
+
 
 def throttle_backoff_handler(details):
     """Callback to be used when a throttle backoff is invoked.

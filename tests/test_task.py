@@ -2,7 +2,7 @@ from __future__ import absolute_import
 import functools
 try:
     from unittest.mock import MagicMock
-except:
+except:  # noqa: E722
     from mock import MagicMock
 
 import pytest
@@ -156,7 +156,7 @@ def test_task_decorator_with_heartbeat():
 
     @task.decorate(heartbeat=heartbeat)
     def test(user):
-        assert user is userinfo
+        pass
 
     assert test.__garcon__.get('heartbeat') == heartbeat
 
@@ -290,8 +290,6 @@ def test_contextify_with_mapped_response():
 def test_flatten():
     """Test the flatten function.
     """
-
-    spy = MagicMock
 
     @task.decorate(timeout=10)
     def task_a(name):

@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 try:
     from unittest.mock import MagicMock
-except:
+except:  # noqa: E722
     from mock import MagicMock
 
 import pytest

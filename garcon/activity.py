@@ -231,10 +231,12 @@ class ActivityInstance:
                     activity_input.update({requirement: value})
 
             activity_input.update({
-                'execution.domain': self.global_context.get('execution.domain'),
-                'execution.run_id': self.global_context.get('execution.run_id'),
-                'execution.workflow_id': self.global_context.get(
-                    'execution.workflow_id')
+                'execution.domain':
+                    self.global_context.get('execution.domain'),
+                'execution.run_id':
+                    self.global_context.get('execution.run_id'),
+                'execution.workflow_id':
+                    self.global_context.get('execution.workflow_id'),
             })
 
         except runner.NoRunnerRequirementsFound:
@@ -320,7 +322,7 @@ class Activity(swf.ActivityWorker, log.GarconLogger):
                     self.fail(reason=str(error)[:255])
                     if self.on_exception:
                         self.on_exception(self, error)
-                except:
+                except:  # noqa: E722
                     pass
 
         self.unset_log_context()

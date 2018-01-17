@@ -1,6 +1,6 @@
 try:
     from unittest.mock import MagicMock
-except:
+except:  # noqa: E722
     from mock import MagicMock
 import boto.exception as boto_exception
 import datetime
@@ -37,20 +37,9 @@ def test_create_dictionary_key():
     for value in values:
         assert len(utils.create_dictionary_key(value)) == 40
 
-def test_create_dictionary_key():
-    """Try creating a unique key from a dict.
-    """
 
-    values = [
-        dict(foo=10),
-        dict(foo2=datetime.datetime.now())]
-
-    for value in values:
-        assert len(utils.create_dictionary_key(value)) == 40
-
-
-def test_non_throttle_error():
-    """Assert SWF error is evaluated as non-throttle error properly.
+def test_throttle_error():
+    """Assert SWF error is evaluated as throttle error properly.
     """
 
     response_status = 400
@@ -61,9 +50,15 @@ def test_non_throttle_error():
     json_body = json.loads(reponse_body)
     exception = boto_exception.SWFResponseError(
         response_status, response_reason, body=json_body)
-    result = utils.non_throttle_error(exception)
+
     assert not utils.non_throttle_error(exception)
 
+
+def test_non_throttle_error():
+    """Assert SWF error is evaluated as non-throttle error properly.
+    """
+    response_status = 400
+    response_reason = 'Bad Request'
     reponse_body = (
         '{"__type": "com.amazon.coral.availability#OtheException",'
         '"message": "Rate exceeded"}')
@@ -71,6 +66,7 @@ def test_non_throttle_error():
     exception = boto_exception.SWFResponseError(
         response_status, response_reason, body=json_body)
     assert utils.non_throttle_error(exception)
+
 
 def test_throttle_backoff_handler():
     """Assert backoff is logged correctly.

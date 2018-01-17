@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 try:
     from unittest.mock import MagicMock
-except:
+except:  # noqa: E722
     from mock import MagicMock
 import boto.swf.layer2 as swf
 import json
@@ -162,8 +162,9 @@ def test_create_decisions_from_flow_exception(monkeypatch):
     decider_worker.on_exception = MagicMock()
 
     exception = Exception('test')
-    monkeypatch.setattr(decider.activity,
-        'find_available_activities', MagicMock(side_effect = exception))
+    monkeypatch.setattr(
+        decider.activity, 'find_available_activities',
+        MagicMock(side_effect=exception))
 
     mock_decisions = MagicMock()
     mock_activity_states = MagicMock()
@@ -347,7 +348,7 @@ def test_schedule_activity_task_with_version(monkeypatch):
         schedule_to_close_timeout=str(instance.schedule_to_close))
 
 
-def test_schedule_activity_task_with_version(monkeypatch):
+def test_schedule_activity_task_with_id(monkeypatch):
     """Test scheduling an activity task with a custom id.
     """
 

@@ -1,12 +1,11 @@
 from __future__ import absolute_import
 try:
     from unittest.mock import MagicMock
-except:
+except:  # noqa: E722
     from mock import MagicMock
 import boto.swf.layer2 as swf
 
 from garcon import context
-from tests.fixtures import decider as decider_events
 
 
 def mock(monkeypatch):
@@ -35,6 +34,7 @@ def test_context_creation_with_events(monkeypatch):
 
     current_context = context.ExecutionContext(poll.history.get('events'))
     assert current_context.current == {'k': 'v'}
+
 
 def test_get_workflow_execution_info(monkeypatch):
     """Check that the workflow execution info are properly extracted
